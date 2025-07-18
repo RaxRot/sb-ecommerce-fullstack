@@ -1,12 +1,11 @@
 package com.raxrot.back.services;
 
 import com.raxrot.back.dtos.CategoryDTO;
-
-import java.util.List;
+import com.raxrot.back.dtos.CategoryResponse;
 
 public interface CategoryService {
     CategoryDTO createCategory(CategoryDTO categoryDTO);
-    List<CategoryDTO> getAllCategories();
+    CategoryResponse getAllCategories(Integer pageNumber, Integer pageSize,String sortBy,String sortOrder);
     CategoryDTO getCategoryById(Long categoryId);
     CategoryDTO updateCategory(Long categoryId, CategoryDTO categoryDTO);
     void deleteCategory(Long categoryId);
