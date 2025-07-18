@@ -1,14 +1,14 @@
 package com.raxrot.back.controllers;
 
+import com.raxrot.back.configurations.AppConfig;
 import com.raxrot.back.dtos.CategoryDTO;
+import com.raxrot.back.dtos.CategoryResponse;
 import com.raxrot.back.services.CategoryService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -28,11 +28,22 @@ public class CategoryController {
     }
 
     @GetMapping("/public/categories")
-    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
-        log.info("GET /public/categories - Fetching all categories");
-        List<CategoryDTO> categories = categoryService.getAllCategories();
-        log.info("Found {} categories", categories.size());
-        return new ResponseEntity<>(categories, HttpStatus.OK);
+    public ResponseEntity<CategoryResponse> getAllCategories(
+            @RequestParam(value = "page", defaultValue = AppConfig.PAGE_NUMBER) Integer page,
+            @RequestParam(value = "size", defaultValue = AppConfig.PAGE_SIZE) Integer size,
+            @RequestParam(value = "sortBy", defaultValue = AppConfig.SORT_BY_ID) String sortBy,
+            @RequestParam(value = "sortOrder", defaultValue = AppConfig.SORT_ORDER_ASC) String sortOrder
+    ) {
+        log.info("GET /public/categories - page: {}, size: {}, sortBy: {}, sortOrder: {}", page, size, sortBy, sortOrder);
+
+        CategoryResponse categoryResponse = categoryService.getAllCategories(page, size, sortBy, sortOrder);
+
+        log.info("Returned {} categories on page {} of {}",
+                categoryResponse.getContent().size(),
+                categoryResponse.getPageNumber(),
+                categoryResponse.getTotalPages());
+
+        return new ResponseEntity<>(categoryResponse, HttpStatus.OK);
     }
 
     @GetMapping("/public/categories/{categoryId}")
