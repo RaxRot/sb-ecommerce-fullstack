@@ -51,10 +51,10 @@ class CategoryRepositoryTest {
     @DisplayName("Get category by id")
     void getCategoryById() {
         Category savedCategory = categoryRepository.save(category);
-        Optional<Category> category = categoryRepository.findById(savedCategory.getId());
+        Optional<Category> categoryFromDb = categoryRepository.findById(savedCategory.getId());
 
-        assertThat(category.isPresent()).isTrue();
-        assertThat(category.get().getName()).isEqualTo(savedCategory.getName());
+        assertThat(categoryFromDb).isPresent();
+        assertThat(categoryFromDb.get().getName()).isEqualTo(savedCategory.getName());
     }
 
     @Test
@@ -74,7 +74,7 @@ class CategoryRepositoryTest {
         categoryRepository.delete(savedCategory);
         Optional<Category> category = categoryRepository.findById(savedCategory.getId());
 
-        assertThat(category.isPresent()).isFalse();
+        assertThat(category).isNotPresent();
         assertThat(categoryRepository.existsById(savedCategory.getId())).isFalse();
     }
 }
