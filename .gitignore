@@ -1,0 +1,38 @@
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+logs/
+spring.log
+
+# IntelliJ
+.idea/
+*.iml
+
+# VS Code (for WebStorm)
+.vscode/
+
+# Build directories
+/target/
+/out/
+
+# Maven
+.mvn/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+
+# H2 / other databases
+*.mv.db
+*.h2.db
+
+# Test reports
+/test-output/
