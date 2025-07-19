@@ -12,6 +12,7 @@ import com.raxrot.back.services.FileService;
 import com.raxrot.back.services.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +26,10 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
     private final FileService fileService;
+
+    @Value("${project.image}")
+    private String path;
+
     public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository, ModelMapper modelMapper, FileService fileService) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
@@ -132,7 +137,6 @@ public class ProductServiceImpl implements ProductService {
         log.debug("Product found: id={}, name={}", product.getId(), product.getName());
 
         // Upload image
-        String path = "images";
         String fileName = fileService.uploadImage(path, image);
         log.info("Image uploaded: {}", fileName);
 
