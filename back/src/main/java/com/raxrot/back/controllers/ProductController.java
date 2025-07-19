@@ -1,5 +1,6 @@
 package com.raxrot.back.controllers;
 
+import com.raxrot.back.configurations.AppConfig;
 import com.raxrot.back.dtos.ProductDTO;
 import com.raxrot.back.dtos.ProductResponse;
 import com.raxrot.back.services.ProductService;
@@ -29,9 +30,14 @@ public class ProductController {
     }
 
     @GetMapping("/public/products")
-    public ResponseEntity<ProductResponse> getAllProducts() {
-        log.info("GET /public/products");
-        ProductResponse productResponse = productService.getAllProducts();
+    public ResponseEntity<ProductResponse> getAllProducts(
+            @RequestParam(value = "page", defaultValue = AppConfig.PAGE_NUMBER) Integer page,
+            @RequestParam(value = "size", defaultValue = AppConfig.PAGE_SIZE) Integer size,
+            @RequestParam(value = "sortBy", defaultValue = AppConfig.SORT_BY_ID) String sortBy,
+            @RequestParam(value = "sortOrder", defaultValue = AppConfig.SORT_ORDER_ASC) String sortOrder
+    ) {
+        log.info("GET /public/products?page={}&size={}&sortBy={}&sortOrder={}", page, size, sortBy, sortOrder);
+        ProductResponse productResponse = productService.getAllProducts(page, size, sortBy, sortOrder);
         return new ResponseEntity<>(productResponse, HttpStatus.OK);
     }
 
