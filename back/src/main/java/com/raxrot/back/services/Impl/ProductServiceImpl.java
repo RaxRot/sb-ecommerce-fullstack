@@ -8,18 +8,15 @@ import com.raxrot.back.models.Category;
 import com.raxrot.back.models.Product;
 import com.raxrot.back.repoitories.CategoryRepository;
 import com.raxrot.back.repoitories.ProductRepository;
+import com.raxrot.back.services.FileService;
 import com.raxrot.back.services.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -27,10 +24,12 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
-    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository, ModelMapper modelMapper) {
+    private final FileService fileService;
+    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository, ModelMapper modelMapper, FileService fileService) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.modelMapper = modelMapper;
+        this.fileService = fileService;
     }
     @Override
     public ProductDTO addProduct(Long categoryId, ProductDTO productDto) {
@@ -126,38 +125,23 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO uploadProductImage(Long productId, MultipartFile image) throws IOException {
-        //Get Product from DB
-        Product product = getProduct(productId);
+        log.info("Uploading image for product ID: {}", productId);
 
-        //way where we will save image
-        String path="images";
-        //load image and make unique name
-        String fileName=uploadImage(path,image);
-        //upd image in product
+        // Get product
+        Product product = getProduct(productId);
+        log.debug("Product found: id={}, name={}", product.getId(), product.getName());
+
+        // Upload image
+        String path = "images";
+        String fileName = fileService.uploadImage(path, image);
+        log.info("Image uploaded: {}", fileName);
+
+        // Update image field
         product.setImage(fileName);
-        //save in DB
         Product updatedProduct = productRepository.save(product);
-        //get back product
+        log.info("Product image updated in DB: id={}, image={}", updatedProduct.getId(), updatedProduct.getImage());
+
         return modelMapper.map(updatedProduct, ProductDTO.class);
     }
 
-    private String uploadImage(String path, MultipartFile image) throws IOException {
-        //get final name
-        String originalFilename = image.getOriginalFilename();
-        //generate random ID
-        String randomId= UUID.randomUUID().toString();
-        //create unique name with extension
-        String fileName=randomId.concat(originalFilename.substring(originalFilename.lastIndexOf(".")));
-        //full way to file
-        String filePath=path+ File.separator+fileName;
-        //check if images exists if no-create
-        File folder = new File(path);
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-        //copy content in that folder
-        Files.copy(image.getInputStream(), Paths.get(filePath));
-        //back unique name
-        return fileName;
-    }
 }
