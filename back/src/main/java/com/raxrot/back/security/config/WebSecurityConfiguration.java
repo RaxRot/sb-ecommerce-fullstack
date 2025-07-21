@@ -112,17 +112,17 @@ public class WebSecurityConfiguration {
 
             // Create users if not already present
             if (!userRepository.existsByUsername("user")) {
-                User user1 = new User("user", "user@example.com", passwordEncoder.encode("user"));
+                User user1 = new User("user",  passwordEncoder.encode("user"),"user@example.com");
                 userRepository.save(user1);
             }
 
             if (!userRepository.existsByUsername("seller")) {
-                User seller1 = new User("seller", "seller@example.com", passwordEncoder.encode("seller"));
+                User seller1 = new User("seller", passwordEncoder.encode("seller") ,"seller@example.com");
                 userRepository.save(seller1);
             }
 
             if (!userRepository.existsByUsername("admin")) {
-                User admin = new User("admin", "admin@example.com", passwordEncoder.encode("admin"));
+                User admin = new User("admin",passwordEncoder.encode("admin") ,"admin@example.com");
                 userRepository.save(admin);
             }
 
