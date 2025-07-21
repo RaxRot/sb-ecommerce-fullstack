@@ -1,13 +1,19 @@
 package com.raxrot.back.security.jwt;
 
-import io.jsonwebtoken.*;
+import com.raxrot.back.security.services.UserDetailsImpl;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -22,7 +28,11 @@ public class JwtUtils {
     @Value("${spring.app.jwtSecret}")
     private String jwtSecret;
 
+    @Value("${spring.app.jwtCookieName}")
+    private String jwtCookie;
+
     //Getting JWT from header
+    /*
     public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         log.debug("Authentication header: {}",bearerToken);
@@ -31,10 +41,28 @@ public class JwtUtils {
         }
         return null;
     }
+     */
+    public String getJwtFromCookie(HttpServletRequest request) {
+        Cookie cookie= WebUtils.getCookie(request, jwtCookie);
+        if (cookie != null) {
+            return cookie.getValue();
+        }else{
+            return null;
+        }
+    }
+
+    public ResponseCookie getJwtCookie(UserDetailsImpl userPrincipal) {
+        String jwt=generateJwtFromUsername(userPrincipal.getUsername());
+        ResponseCookie cookie= ResponseCookie.from(jwtCookie,jwt)
+                .path("/api")
+                .maxAge(24*60*60)
+                .httpOnly(false)
+                .build();
+        return cookie;
+    }
 
     //Generating Token from username
-    public String generateJwtFromUsername(UserDetails userDetails) {
-        String username = userDetails.getUsername();
+    public String generateJwtFromUsername(String username) {
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
