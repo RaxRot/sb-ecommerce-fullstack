@@ -9,7 +9,8 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class LoginResponse {
+public class UserInfoResponse {
+    private Long id;
     private String jwt;
     private String username;
     private List<String> roles;
