@@ -1,4 +1,4 @@
-package com.raxrot.back.security.jwt;
+package com.raxrot.back.security.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
