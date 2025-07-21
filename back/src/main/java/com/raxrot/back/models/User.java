@@ -1,7 +1,6 @@
 package com.raxrot.back.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -28,22 +27,19 @@ public class User {
     @NotBlank
     @Size(max = 20)
     @Column(name = "username")
-    private String userName;
+    private String username;
 
-    @NotBlank
-    @Size(max = 50)
-    @Email
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @NotBlank
     @Size(max = 120)
     private String password;
 
-    public User(String userName, String email, String password) {
-        this.userName = userName;
-        this.email = email;
+    public User(String username, String password, String email) {
+        this.username = username;
         this.password = password;
+        this.email = email;
     }
 
     @Getter

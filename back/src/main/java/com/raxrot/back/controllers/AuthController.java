@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -105,6 +106,9 @@ public class AuthController {
                 }
             });
         }
+        System.out.println("Длина email: " + signUpRequest.getEmail().length());
+        System.out.println("Email в HEX: " +
+                HexFormat.of().formatHex(signUpRequest.getEmail().getBytes(StandardCharsets.UTF_8)));
         user.setRoles(roles);
         userRepository.save(user);
         return ResponseEntity.ok("User registered successfully");

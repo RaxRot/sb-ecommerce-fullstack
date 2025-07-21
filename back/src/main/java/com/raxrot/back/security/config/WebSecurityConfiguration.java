@@ -65,7 +65,7 @@ public class WebSecurityConfiguration {
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/api/test/**").permitAll()
-                        .requestMatchers("/api/admin/**").permitAll()//temp for test!DNT FORGOT TO REMOVE
+                        //.requestMatchers("/api/admin/**").permitAll()//temp for test!DNT FORGOT TO REMOVE
                         .anyRequest().authenticated());
 
         http.authenticationProvider(authenticationProvider());
