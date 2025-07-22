@@ -1,13 +1,17 @@
 package com.raxrot.back.services.Impl;
 
 import com.raxrot.back.configurations.AppConfig;
+import com.raxrot.back.dtos.CartDTO;
 import com.raxrot.back.dtos.ProductDTO;
 import com.raxrot.back.dtos.ProductResponse;
 import com.raxrot.back.exceptions.ApiException;
+import com.raxrot.back.models.Cart;
 import com.raxrot.back.models.Category;
 import com.raxrot.back.models.Product;
+import com.raxrot.back.repoitories.CartRepository;
 import com.raxrot.back.repoitories.CategoryRepository;
 import com.raxrot.back.repoitories.ProductRepository;
+import com.raxrot.back.services.CartService;
 import com.raxrot.back.services.FileService;
 import com.raxrot.back.services.ProductService;
 import lombok.extern.slf4j.Slf4j;
@@ -30,15 +34,24 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
     private final FileService fileService;
+    private final CartRepository cartRepository;
+    private final CartService cartService;
 
     @Value("${project.image}")
     private String path;
 
-    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository, ModelMapper modelMapper, FileService fileService) {
+    public ProductServiceImpl(ProductRepository productRepository,
+                              CategoryRepository categoryRepository,
+                              ModelMapper modelMapper,
+                              FileService fileService,
+                              CartRepository cartRepository,
+                              CartService cartService) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.modelMapper = modelMapper;
         this.fileService = fileService;
+        this.cartRepository = cartRepository;
+        this.cartService = cartService;
     }
     @Override
     public ProductDTO addProduct(Long categoryId, ProductDTO productDto) {
@@ -122,6 +135,20 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(productDto.getPrice());
 
         Product savedProduct = productRepository.save(product);
+
+        List<Cart>carts=cartRepository.findCartsByProductId(productId);
+        List<CartDTO>cartDTOS=carts.stream().map(cart -> {
+            CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+            List<ProductDTO>productDTOS=cart.getCartItems().stream()
+                    .map(p->modelMapper.map(p.getProduct(), ProductDTO.class))
+                    .toList();
+            cartDTO.setProducts(productDTOS);
+            return cartDTO;
+        }).toList();
+
+        cartDTOS.forEach(cart -> cartService.updateProductInCarts(cart.getId(),productId));
+
+
         log.info("Product with ID {} successfully updated", productId);
         return modelMapper.map(savedProduct, ProductDTO.class);
     }
@@ -130,6 +157,10 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(Long productId) {
         log.warn("Deleting product with ID: {}", productId);
         Product product = getProduct(productId);
+
+        List<Cart>carts=cartRepository.findCartsByProductId(productId);
+        carts.forEach(cart -> cartService.deleteProductFromCart(cart.getId(),productId));
+
         productRepository.delete(product);
         log.warn("Product with ID {} deleted", productId);
     }

@@ -183,4 +183,16 @@ public class CartServiceImpl implements CartService {
 
         return "Product deleted "+ cartItem.getProduct().getName();
     }
+
+    @Override
+    public void updateProductInCarts(Long id, Long productId) {
+        Cart cart=cartRepository.findById(id).orElseThrow(()->new ApiException("Cart not found"));
+        CartItem cartItem=cartItemRepository.findCartItemByProductIdAndCartId(id,productId);
+        if (cartItem == null) {
+            throw new ApiException("Product not available in cart");
+        }
+        BigDecimal cartPrice = cart.getTotalPrice().subtract(cartItem.getProductPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+        cart.setTotalPrice(cartPrice.add(cartItem.getProductPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()))));
+        cartItemRepository.save(cartItem);
+    }
 }
