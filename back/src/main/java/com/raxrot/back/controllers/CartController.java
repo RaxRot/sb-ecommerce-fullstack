@@ -43,4 +43,17 @@ public class CartController {
         CartDTO cartDTO=cartService.getCart(emailId,cartId);
         return ResponseEntity.ok(cartDTO);
     }
+
+    @PutMapping("/cart/products/{productId}/quantity/{operation}")
+    public ResponseEntity<CartDTO> updateCartProduct(@PathVariable Long productId,@PathVariable String operation){
+        Integer operationToPath=operation.equalsIgnoreCase("delete")?-1:1;
+       CartDTO cartDTO= cartService.updateProductQuantityInCart(productId,operationToPath);
+        return ResponseEntity.ok(cartDTO);
+    }
+
+    @DeleteMapping("/carts/{cartId}/product/{productId}")
+    public ResponseEntity<String> deleteProductFormCart(@PathVariable Long cartId,@PathVariable Long productId){
+       String status = cartService.deleteProductFromCart(cartId,productId);
+       return ResponseEntity.ok(status);
+    }
 }
