@@ -55,4 +55,26 @@ public class AddressServiceImpl implements AddressService {
 
 
     }
+
+    @Override
+    public AddressDTO updateAddress(Long addressId, AddressDTO addressDTO) {
+       Address addressFromDb=addressRepository.findById(addressId).orElseThrow(()->new ApiException("Address not found"));
+        addressFromDb.setStreet(addressDTO.getStreet());
+        addressFromDb.setBuildingName(addressDTO.getBuildingName());
+        addressFromDb.setCity(addressDTO.getCity());
+        addressFromDb.setState(addressDTO.getState());
+        addressFromDb.setCountry(addressDTO.getCountry());
+        addressFromDb.setPincode(addressDTO.getPincode());
+        Address savedAddress=addressRepository.save(addressFromDb);
+        return modelMapper.map(savedAddress, AddressDTO.class);
+    }
+
+    @Override
+    public void deleteAddress(Long addressId) {
+        if (addressRepository.existsById(addressId)) {
+            addressRepository.deleteById(addressId);
+        }else{
+            throw new ApiException("Address not found");
+        }
+    }
 }
