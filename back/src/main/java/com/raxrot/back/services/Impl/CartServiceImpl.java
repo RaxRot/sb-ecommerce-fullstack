@@ -185,14 +185,26 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void updateProductInCarts(Long id, Long productId) {
-        Cart cart=cartRepository.findById(id).orElseThrow(()->new ApiException("Cart not found"));
-        CartItem cartItem=cartItemRepository.findCartItemByProductIdAndCartId(id,productId);
+    public void updateProductInCarts(Long cartId, Long productId) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ApiException("Cart not found"));
+
+        CartItem cartItem = cartItemRepository.findCartItemByProductIdAndCartId(cartId, productId);
         if (cartItem == null) {
             throw new ApiException("Product not available in cart");
         }
-        BigDecimal cartPrice = cart.getTotalPrice().subtract(cartItem.getProductPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
-        cart.setTotalPrice(cartPrice.add(cartItem.getProductPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()))));
+
+        BigDecimal newProductPrice = cartItem.getProduct().getPrice();
+
+        BigDecimal oldTotal = cart.getTotalPrice()
+                .subtract(cartItem.getProductPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+
+        cartItem.setProductPrice(newProductPrice);
+
+        BigDecimal updatedTotal = oldTotal.add(newProductPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+        cart.setTotalPrice(updatedTotal);
+
         cartItemRepository.save(cartItem);
+        cartRepository.save(cart);
     }
 }
