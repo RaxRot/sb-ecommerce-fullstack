@@ -1,6 +1,7 @@
 package com.raxrot.back.services.Impl;
 
 import com.raxrot.back.dtos.AddressDTO;
+import com.raxrot.back.exceptions.ApiException;
 import com.raxrot.back.models.Address;
 import com.raxrot.back.models.User;
 import com.raxrot.back.repoitories.AddressRepository;
@@ -37,5 +38,11 @@ public class AddressServiceImpl implements AddressService {
         List<AddressDTO>addressDTOS=addresses.stream()
                 .map(address -> modelMapper.map(address, AddressDTO.class)).collect(Collectors.toList());
         return addressDTOS;
+    }
+
+    @Override
+    public AddressDTO getAddressById(Long addressId) {
+        Address address=addressRepository.findById(addressId).orElseThrow(()->new ApiException("Address not found"));
+        return modelMapper.map(address, AddressDTO.class);
     }
 }
