@@ -142,6 +142,15 @@ public class CartServiceImpl implements CartService {
             throw new ApiException("Cart item not found");
         }
 
+        int newQuantity=cartItem.getQuantity()+operationToPath;
+        if (newQuantity<0){
+            throw new ApiException("The result can't be negative");
+        }
+        if (newQuantity==0){
+            deleteProductFromCart(cartId,productId);
+            return modelMapper.map(cart, CartDTO.class);
+        }
+
         cartItem.setProductPrice(product.getPrice());
         cartItem.setQuantity(cartItem.getQuantity()+operationToPath);
         cart.setTotalPrice(cart.getTotalPrice().add(cartItem.getProductPrice().multiply(BigDecimal.valueOf(operationToPath))));
