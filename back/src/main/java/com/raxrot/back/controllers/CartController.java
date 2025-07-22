@@ -1,7 +1,10 @@
 package com.raxrot.back.controllers;
 
 import com.raxrot.back.dtos.CartDTO;
+import com.raxrot.back.models.Cart;
+import com.raxrot.back.repoitories.CartRepository;
 import com.raxrot.back.services.CartService;
+import com.raxrot.back.util.AuthUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,8 +15,12 @@ import java.util.List;
 public class CartController {
 
     private final CartService cartService;
-    public CartController(CartService cartService){
+    private final AuthUtil authUtil;
+    private final CartRepository cartRepository;
+    public CartController(CartService cartService, AuthUtil authUtil, CartRepository cartRepository) {
         this.cartService=cartService;
+        this.authUtil=authUtil;
+        this.cartRepository=cartRepository;
     }
 
     @PostMapping("/carts/products/{productId}/quantity/{quantity}")
@@ -26,5 +33,14 @@ public class CartController {
     public ResponseEntity<List<CartDTO>> getAllCarts(){
         List<CartDTO>cartDTOS=cartService.getAllCarts();
         return ResponseEntity.ok(cartDTOS);
+    }
+
+    @GetMapping("/carts/users/cart")
+    public ResponseEntity<CartDTO> getCartById(){
+        String emailId=authUtil.loggedInEmail();
+        Cart cart=cartRepository.findCartByEmail(emailId);
+        Long cartId=cart.getId();
+        CartDTO cartDTO=cartService.getCart(emailId,cartId);
+        return ResponseEntity.ok(cartDTO);
     }
 }
